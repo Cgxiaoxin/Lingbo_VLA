@@ -1,23 +1,38 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
+# Python / IDE
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
 .vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-files
-*.bclicense
-*.flf
-#Test results file
-TestResults.xml
+.idea/
+
+# macOS junk
+.DS_Store
+__MACOSX/
+
+# ML artifacts (keep structure via .gitkeep)
+*.pt
+*.pth
+*.ckpt
+*.safensors
+*.bin
+*.onnx
+wandb/
+runs/
+outputs/
+lightning_logs/
+
+# Data & large caches (store outside git)
+data/
+datasets/
+*.zip
+*.tar
+*.tar.gz
+*.npz
+
+# Submission weight payloads (directory kept)
+梯度不爆炸小组_初赛提交材料/03_模型权重/checkpoint/**
+!梯度不爆炸小组_初赛提交材料/03_模型权重/checkpoint/.gitkeep
+梯度不爆炸小组_初赛提交材料/05_真机创新可选任务/*.mp4
