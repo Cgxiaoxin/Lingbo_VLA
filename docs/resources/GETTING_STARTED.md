@@ -8,13 +8,16 @@
 - `results.json` / 复现说明 / 真机 Demo 说明 / 小红书信息占位
 - `02_代码材料` 下的 `train.sh` / `eval.sh` / configs / src 脚手架
 
+**上机前先读：** [`../AMD_ROCm_环境手册.md`](../AMD_ROCm_环境手册.md)  
+（说明：官方代码在 `/RoboTwin`，权重在 `/models/robotwin-persistent`，Python 用 `/opt/robotwin-env`，只有 checkpoint/提交物放 `/workspace`。）
+
 ## 1. 建议推进顺序（仿真必做）
 
 | 阶段 | 做什么 | 产出 |
 |------|--------|------|
-| A. 环境 | 领取 AMD 算力，对齐 ROCm 复现镜像 | 可跑通官方 hello-world |
-| B. 资源 | 拉 LingBot-VLA 2.0 代码与权重；准备 RoboTwin **clean** 数据 | 本地/挂载路径可用 |
-| C. 基线 | 不改结构，先跑通 train → eval(clean) | 第一个 checkpoint + 部分任务分 |
+| A. 环境 | 按《AMD ROCm 环境手册》完成 5 分钟检查清单 | `robotwin-env` + GPU + 挂载 OK |
+| B. 资源 | 确认 `/models/robotwin-persistent` 权重与 clean 数据可用（一般无需重下） | 路径可用 |
+| C. 基线 | Notebook / 官方脚本跑通 train → eval(clean) | 第一个 checkpoint + 部分任务分 |
 | D. 调优 | 改超参 / 数据增强（仍限 clean）/ 推理策略 | 更好的 success rate |
 | E. 全量评测 | 50 任务 × clean/randomized × 100 episodes | 填满 `results.json` |
 | F. 打包 | 按目录打 Zip，天池提交 | `梯度不爆炸小组_初赛提交材料.zip` |

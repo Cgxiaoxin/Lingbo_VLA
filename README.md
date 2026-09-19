@@ -4,10 +4,11 @@
 
 ## 快速开始
 
-1. 阅读 [`docs/resources/GETTING_STARTED.md`](docs/resources/GETTING_STARTED.md)
-2. 检查提交骨架：`bash scripts/check_scaffold.sh`
-3. 在 `梯度不爆炸小组_初赛提交材料/` 内完成训练、评测与材料填写
-4. 截止前打包为 `梯度不爆炸小组_初赛提交材料.zip` 上传天池
+1. **上机必读**：[AMD ROCm 环境手册](docs/AMD_ROCm_环境手册.md)（环境 / 权重 / 存储 / 代理）
+2. 阅读 [`docs/resources/GETTING_STARTED.md`](docs/resources/GETTING_STARTED.md)
+3. 检查提交骨架：`bash scripts/check_scaffold.sh`
+4. 在 `梯度不爆炸小组_初赛提交材料/` 内完成训练、评测与材料填写
+5. 截止前打包为 `梯度不爆炸小组_初赛提交材料.zip` 上传天池
 
 ## 仓库结构
 
@@ -21,6 +22,8 @@ Lingbo_VLA/
 │   ├── 05_真机创新可选任务/      # 可选
 │   └── 06_小红书创作活动/
 ├── docs/
+│   ├── AMD_ROCm_环境手册.md      # AMD 实例环境与路径手册（队员必读）
+│   ├── README.md                 # docs 索引
 │   ├── official_templates/       # 主办方原始模板备份
 │   └── resources/GETTING_STARTED.md
 ├── scripts/check_scaffold.sh
