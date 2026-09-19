@@ -1,0 +1,9 @@
+{
+  "robot_name": "aloha_agilex",
+  "simulator": "robotwin2",
+  "control_mode": "joint",
+  "cameras": ["cam_high", "cam_left_wrist", "cam_right_wrist"],
+  "action_dim": 14,
+  "state_dim": 14,
+  "notes": "Align with official RoboTwin robot config before final submission."
+}

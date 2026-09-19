@@ -1,0 +1,20 @@
+{
+  "experiment_name": "lingbo_vla_aloha_agilex_eval",
+  "seed": 0,
+  "model": {
+    "name": "lingbot-vla-v2-6b"
+  },
+  "eval": {
+    "tasks": "all_50",
+    "num_episodes": 100,
+    "settings": ["clean", "randomized"],
+    "success_metric": "task_success",
+    "amd_note": "ROCm + MPLib + expert_check=true"
+  },
+  "robot": {
+    "config": "robot_aloha_agilex.json"
+  },
+  "output": {
+    "results_json": "../../01_评测结果/results.json"
+  }
+}
