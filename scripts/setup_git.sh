@@ -87,11 +87,22 @@ echo
 
 if [[ "${DO_PUSH}" -eq 1 ]]; then
   echo "[info] pushing ${branch} -> ${GIT_REMOTE_NAME} ..."
-  echo "[hint] HTTPS 需要 GitHub 用户名 + PAT；Token 未配置时 push 会失败。"
-  git push -u "${GIT_REMOTE_NAME}" "${branch}"
+  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    # 临时用带 token 的 URL 推送，不把 token 写进 .git/config
+    auth_url="https://x-access-token:${GITHUB_TOKEN}@github.com/Cgxiaoxin/Lingbo_VLA.git"
+    git push "${auth_url}" "HEAD:refs/heads/${branch}"
+    git branch --set-upstream-to="${GIT_REMOTE_NAME}/${branch}" "${branch}" 2>/dev/null || true
+  else
+    echo "[hint] 未设置 GITHUB_TOKEN。可："
+    echo "       export GITHUB_TOKEN=ghp_xxx   # GitHub → Settings → Developer settings → PAT"
+    echo "       bash scripts/setup_git.sh --push"
+    echo "  或交互输入用户名 + PAT："
+    git push -u "${GIT_REMOTE_NAME}" "${branch}"
+  fi
   echo "[ok] push done"
 else
   echo "[hint] 仅完成配置。要推送请执行："
+  echo "       export GITHUB_TOKEN=ghp_xxx"
   echo "       bash scripts/setup_git.sh --push"
   echo "       # 或: git push -u origin ${branch}"
 fi
