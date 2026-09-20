@@ -1,90 +1,55 @@
-## 简单测试（smoke test）
+## 冒烟训练（Full-SFT）
 
 ```bash
-# 激活环境
 source /opt/robotwin-env/bin/activate
-
-# 进入训练目录
 cd /RoboTwin/experiments/lingbot_vla_v2_6b_robotwin/training
-
-# 启动 8 卡，微型训练（脚本内已带 AITER_TRITON_ONLY 等 ROCm 变量）
-GPU_COUNT=8 MAX_STEPS=100 SAVE_STEPS=100 \
-  OUTPUT_DIR=/workspace/runtime/outputs/full_sft_8gpu_100steps \
-  bash train_full_sft.sh
+mkdir -p /workspace/runtime/outputs/logs /workspace/runtime/tmp
 ```
 
-若仍报 `Unrecognized ... LingbotVLAV2Config`，先手动导出再跑：
+### 当前推荐：6 卡（物理 2–7）+ micro=8
+
+`micro=16` 在 8 卡 Full-SFT 上已 OOM；6 卡 FSDP 每卡分片更大，**更不建议 16**。用 8：
 
 ```bash
-export AITER_TRITON_ONLY=1
-export FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE
-export PYTHONPATH=/opt/aiter${PYTHONPATH:+:$PYTHONPATH}
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-export TMPDIR=/workspace/runtime/tmp
-mkdir -p "$TMPDIR"
-```
-
----
-
-
-
-## 后台训练方法
-
-### 方法 1：使用 nohup（无 tmux/screen 时推荐）
-
-```bash
-# 激活环境
-source /opt/robotwin-env/bin/activate
-
-# 日志目录
-mkdir -p /workspace/runtime/outputs/logs
-
-# 进入训练目录
-cd /RoboTwin/experiments/lingbot_vla_v2_6b_robotwin/training
-
-# 启动训练并挂后台，日志输出到指定文件
-nohup env GPU_COUNT=8 MAX_STEPS=100 SAVE_STEPS=100 \
-  OUTPUT_DIR=/workspace/runtime/outputs/full_sft_8gpu_100steps \
+# 后台
+nohup env GPU_COUNT=6 GPU_IDS=2,3,4,5,6,7 \
+  MAX_STEPS=100 SAVE_STEPS=100 \
+  MICRO_BATCH_SIZE=8 GLOBAL_BATCH_SIZE=192 \
+  OUTPUT_DIR=/workspace/runtime/outputs/full_sft_6gpu_100steps_mb8 \
+  LOG_FILE=/workspace/runtime/outputs/logs/full_sft_6gpu_100steps_mb8.log \
   bash train_full_sft.sh \
-  > /workspace/runtime/outputs/logs/full_sft_smoke_nohup.out 2>&1 &
+  > /workspace/runtime/outputs/logs/full_sft_6gpu_mb8_nohup.out 2>&1 &
 
-# 保存后台进程号
-echo $! > /workspace/runtime/outputs/logs/full_sft_smoke.pid
-
-# 查看/实时追踪日志
-tail -f /workspace/runtime/outputs/logs/full_sft_smoke_nohup.out
+echo $! > /workspace/runtime/outputs/logs/full_sft_6gpu_mb8.pid
 ```
 
+`GLOBAL=192`：6×8=48，累积步=4（须整除）。
 
-
-#### 断线重连后继续查看日志：
-
-```bash
-tail -f /workspace/runtime/outputs/logs/full_sft_smoke_nohup.out
-```
-
-
-
-#### 或查看训练脚本自带日志：
-
-```bash
-tail -f /workspace/runtime/outputs/logs/full_sft_8gpu_100steps.log
-```
+仍 OOM → `MICRO_BATCH_SIZE=4 GLOBAL_BATCH_SIZE=192`（累积=8）。
 
 ---
 
-### 方法 2：用 tmux 或 screen（如有权限/习惯）
+## 干净看日志（本机没有 `rg`，用 `grep`）
 
 ```bash
-# 装 tmux 或 screen（如无权限可跳过）
-apt-get update && apt-get install -y tmux   # 或 screen
+# 推荐：只看 step / 报错
+tail -f /workspace/runtime/outputs/logs/full_sft_6gpu_100steps_mb8.log \
+  | stdbuf -oL tr '\r' '\n' \
+  | grep --line-buffered -E 'INFO - __main__ - Step|OutOfMemory|Error|Saving|checkpoint|HIP out'
 
-# 新建 tmux 会话
-tmux new -s train
-# （进入会话后按上述方式启动训练即可）
-# 断线/重连后恢复会话
-tmux attach -t train
+# 或先看最近有没有 step（启动后前几分钟可能还是空的）
+tr '\r' '\n' < /workspace/runtime/outputs/logs/full_sft_6gpu_100steps_mb8.log \
+  | grep -E 'INFO - __main__ - Step|OutOfMemory|HIP out' | tail -20
 ```
 
-> 注：tmux 一般比 screen 更好用。如无权限安装，直接用 nohup 足够。
+说明：第 1 个 step 常要几分钟（编译 flex_attention 等），过滤条件在这段时间会**暂时没有输出**，属正常。可用 `amd-smi` / `ps` 确认还在跑。
 
+---
+
+## 说明
+
+| 问题 | 结论 |
+|------|------|
+| 只用 2–7？ | 可以：`GPU_COUNT=6 GPU_IDS=2,3,4,5,6,7` |
+| micro=16 够吗？ | **大概率不够**（8 卡已炸；6 卡更紧） |
+| 推荐 | micro=**8**，global=**192** |
