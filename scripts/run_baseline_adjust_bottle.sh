@@ -3,6 +3,8 @@
 #   1) base model  -> adjust_bottle x10
 #   2) robotwin ckpt -> adjust_bottle x10
 # All logs/results under /workspace/runtime (persistent).
+# 单任务基线冒烟评测：用 1 张 GPU，对 adjust_bottle 跑 10 episodes（脚本里写的是 10；你机器上已有结果是各 5）
+
 set -euo pipefail
 
 ROBOTWIN=/RoboTwin

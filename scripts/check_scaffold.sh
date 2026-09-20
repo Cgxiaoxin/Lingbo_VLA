@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # 初始化后快速自检：目录完整性 + 脚本可执行权限
+# 提交目录自检：检查 梯度不爆炸小组_初赛提交材料/ 必备文件是否齐全，并给 train.sh/eval.sh 加执行权限
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
