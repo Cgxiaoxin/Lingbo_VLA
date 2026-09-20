@@ -165,15 +165,16 @@ echo
 if [[ "${DO_PUSH}" -eq 1 ]]; then
   echo "[info] pushing ${branch} -> ${GIT_REMOTE_NAME} ..."
   if [[ "${MODE}" == "ssh" ]]; then
-    # GitHub SSH 成功时仍常返回 exit 1，不能 set -e 直接拦
-    ssh_msg="$(ssh -o BatchMode=yes -T git@github.com 2>&1 || true)"
+    # GitHub SSH 成功时仍常返回 exit 1；加超时避免代理坏掉时无限挂起
+    ssh_msg="$(ssh -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 -T git@github.com 2>&1 || true)"
     echo "[info] ssh probe: ${ssh_msg}"
     if ! grep -qiE 'successfully authenticated' <<<"${ssh_msg}"; then
       echo "[fail] SSH 未认证成功。请确认已把公钥加到 Deploy keys 并勾选 Allow write access。" >&2
       echo "       https://github.com/Cgxiaoxin/Lingbo_VLA/settings/keys" >&2
       exit 1
     fi
-    git push -u "${GIT_REMOTE_NAME}" "${branch}"
+    GIT_SSH_COMMAND="ssh -o ConnectTimeout=15 -o ConnectionAttempts=1" \
+      git push -u "${GIT_REMOTE_NAME}" "${branch}"
   elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
     auth_url="https://x-access-token:${GITHUB_TOKEN}@github.com/Cgxiaoxin/Lingbo_VLA.git"
     git push "${auth_url}" "HEAD:refs/heads/${branch}"
